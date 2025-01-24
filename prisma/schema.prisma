@@ -51,6 +51,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  favourites    Favourite[]
+  watchlist     Watchlist[]
  
   @@map("users")
 }
@@ -62,4 +64,22 @@ model VerificationToken {
  
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+model Favourite {
+  id          String    @id @default(cuid())
+  user        User @relation(references: [id], fields: [userId])
+  userId      String
+  movieId     Int
+  title       String
+  poster_path String
+}
+
+model Watchlist {
+  id            String    @id @default(cuid())
+  user          User @relation(references: [id], fields: [userId])
+  userId        String
+  movieId       Int
+  title         String
+  poster_path   String
 }

@@ -1,12 +1,27 @@
 "use client";
-import { redirect } from "next/navigation";
 import Navigation from "./components/Navigation";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/axios";
+import MovieCards from "./components/MovieCards";
 
 export default function Home() {
 
+  const popularMovies = useQuery({
+    queryKey: ["movies"],
+    queryFn: api.getMoviesPopular
+  })
+  
   return (
-    <div className="text-slate-200">
+    <div>
       <Navigation />
+        {popularMovies.isSuccess ? (
+          <main className="grid grid-cols-4 bg-gray-900">
+            {popularMovies.data.results.map((movie: any, index: any) => (
+              <MovieCards movie={movie} key={index}/>
+            ))}
+          </main>
+        ): null}
     </div>
   );
 }

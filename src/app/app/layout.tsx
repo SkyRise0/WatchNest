@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextAuth]/route";
 import { redirect } from "next/navigation";
+import Navigation from "../components/Navigation";
 
 export default async function AppLayout({
     children,
@@ -8,16 +7,10 @@ export default async function AppLayout({
     children: React.ReactNode;
   }>) {
 
-
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-        return redirect ("/");
-    }
-
     return (
-        <div>
-            <div>
+        <div className="h-screen">
+            <Navigation />
+            <div className="">  
                 {children}
             </div>
         </div>

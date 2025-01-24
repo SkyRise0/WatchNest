@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SessionProvider from "@/app/components/sessionProvider";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextAuth]/route";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 import QueryProvider from "./components/QueryProvider";
 
 export const metadata: Metadata = {
