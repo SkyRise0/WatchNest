@@ -1,25 +1,43 @@
 "use client"
 import { api } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import { title } from "process";
+import { useState } from "react";
+import { CheckCircleIcon } from "@heroicons/react/16/solid";
 
 export default function MoviePage () {
 
     const params = useParams();
+
+    const queryClient = useQueryClient();
 
     const movieDetails = useQuery({
         queryKey: ["movie", params.movieId],
         queryFn: () => api.getMovieFromId(params.movieId as string)
     })
 
-    console.log(movieDetails.data)
+    const addToWatchList = useMutation({
+      mutationFn: (movie: any) => api.addToWatchList({ title: movie.title, id: movie.id, poster_path: movie.poster_path}),
+    });
+
+    const addToFavourites = useMutation({
+      mutationFn: (movie: any) => api.addToFavourte({ title: movie.title, id: movie.id, poster_path: movie.poster_path}),
+      onSuccess: () => queryClient.invalidateQueries()
+    });
+
+    const movieDetailsAdd = {
+      title: movieDetails.data?.title,
+      id: movieDetails.data?.id,
+      poster_path: movieDetails.data?.poster_path
+    }
 
     return (
         <div>
             {movieDetails.isSuccess? (
                 <div className="bg-gray-900 text-white min-h-screen">
                 <div className="relative">
-                  <img src={`https://image.tmdb.org/t/p/w500${movieDetails.data.backdrop_path}`} alt={`${movieDetails.data.title} Poster`}
+                  <img src={`https://image.tmdb.org/t/p/w780${movieDetails.data.backdrop_path}`} alt={`${movieDetails.data.title} Poster`}
                     className="w-full h-[600px] object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 flex items-end">
@@ -62,13 +80,25 @@ export default function MoviePage () {
                           <h3 className="text-lg font-semibold">Status</h3>
                           <p className="text-gray-300">{movieDetails.data.status}</p>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <button className="px-6 py-2 bg-teal-700 text-white rounded-lg shadow-md hover:bg-teal-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all">
-                            Favourite
+                        <div className="grid grid-cols-2 gap-4 text-white">
+                          <button className={!movieDetails.data.requesterHasFavourited ?
+                            "px-6 py-2 bg-teal-700 rounded-lg shadow-md hover:bg-teal-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                            :"px-6 py-2 bg-red-700 rounded-lg shadow-md hover:bg-red-800 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all"
+                          }
+                          onClick={() => {addToFavourites.mutate(movieDetailsAdd)}}>
+                            {movieDetails.data.requesterHasFavourited ? "Unfavourite" : "Favourite"}
                           </button>
-                          <button className="px-6 py-2 bg-rose-700 text-white rounded-lg shadow-md hover:bg-rose-800 focus:ring-2 focus:ring-red-500 focus:outline-none transition-all">
-                            Add to Watchlist
-                          </button>
+                          {!addToWatchList.isSuccess ?(
+                            <button className="px-6 py-2 bg-yellow-600 text-white rounded-lg shadow-md hover:bg-yellow-700 focus:ring-2 focus:ring-yellow-400 focus:outline-none transition-all"
+                            onClick={() => {addToWatchList.mutate(movieDetailsAdd)}}>
+                              Add to Watchlist
+                            </button>
+                          ) : (
+                            <div className="flex items-center">
+                              <CheckCircleIcon className="w-6 h-6 text-yellow-600 animate-pulse" />
+                              <p className="text-yellow-500 ml-2">Added to Watchlist!</p>
+                            </div>
+                          )}
                         </div>
                       </div>
           

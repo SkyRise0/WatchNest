@@ -12,7 +12,11 @@ export async function GET (request: NextRequest) {
     }
 
     const currentUser = await prisma.user.findUnique({
-        where: {email: session.user?.email ?? ""}
+        where: {email: session.user?.email ?? ""},
+        include: {
+            favourites: true,
+            watchlist: true
+        }
     });
 
     if (!currentUser) {

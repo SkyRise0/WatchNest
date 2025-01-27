@@ -16,5 +16,21 @@ export const api = {
     getMovieFromId: async (movieId: string) => {
         const { data } = await axios.get("/api/get-movie-details/" + movieId);
         return data;
+    },
+    addToWatchList: async (movieData:{ title: string, id: number, poster_path: string}) => {
+        const { data } = await axios.post("/api/add-to-watchlist", movieData);
+        return data;
+    },
+    addToFavourte: async (movieData:{ title: string, id: number, poster_path: string}) => {
+        const { data } = await axios.post("/api/add-to-favourites", movieData);
+        return data;
+    },
+    deleteFromWatchList: async (movieId: string) => {
+        const { data } = await axios.delete("/api/delete-watchList-movie/" + movieId);
+        return data;
+    },
+    deleteFromFavourites: async (movieId: string) => {
+        const { data } = await axios.delete("/api/delete-favourite-movie/" + movieId);
+        return data;
     }
 }

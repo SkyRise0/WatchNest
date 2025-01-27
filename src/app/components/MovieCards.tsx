@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function MovieCards ({ movie }) {
 
     return (
-      <div className="grid grid-cols-1 gap-6 p-6 bg-gray-900 text-white h-[463px] w-[242px]">
+      <div className="grid grid-cols-1 gap-6 p-6   text-white h-[463px] w-[242px]">
         <div
         className="bg-gray-800 shadow-lg rounded-md overflow-hidden hover:shadow-xl transition-shadow duration-200"
         >
@@ -16,7 +16,9 @@ export default function MovieCards ({ movie }) {
         </Link>  
         <div className="p-4">
             <Link href={"/app/moviePage/" + movie.id} className="text-md font-semibold hover:text-gray-300">{movie.title}</Link>
-            <p className="text-sm text-gray-400">Release Date: {movie.release_date}</p>
+            {movie.release_date ? (
+              <p className="text-sm text-gray-400">Release Date: {movie.release_date}</p>
+            ) : null}
         </div>
         </div>
       </div>
