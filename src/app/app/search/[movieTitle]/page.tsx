@@ -1,4 +1,5 @@
 "use client"
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 import MovieCards from "@/app/components/MovieCards";
 import { api } from "@/lib/axios";
 import { useQuery } from "@tanstack/react-query";
@@ -16,14 +17,17 @@ export default function SearchPage () {
     console.log(searchMovies.data)
 
     return (
-        <main className="grid grid-cols-4 bg-gray-900">
-            {searchMovies.isSuccess ? (
-                <>
-                {searchMovies.data.results.map((movie: any, index: any) => (
-                    <MovieCards movie={movie} key={index}/>
-                ))}
-                </>
-            ) : null}
-        </main>
+        <div>
+            {searchMovies.isLoading ? <LoadingSpinner /> : null}
+            <main className="grid grid-cols-4 bg-gray-900">
+                {searchMovies.isSuccess ? (
+                    <>
+                    {searchMovies.data.results.map((movie: any, index: any) => (
+                        <MovieCards movie={movie} key={index}/>
+                    ))}
+                    </>
+                ) : null}
+            </main>
+        </div>
     );
 }

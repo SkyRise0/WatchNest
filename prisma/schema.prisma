@@ -53,6 +53,7 @@ model User {
   sessions      Session[]
   favourites    Favourite[]
   watchlist     Watchlist[]
+  reviews       Review[]
  
   @@map("users")
 }
@@ -82,4 +83,14 @@ model Watchlist {
   movieId       Int
   title         String
   poster_path   String
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  title     String
+  rating    Int      
+  comment   String?
+  createdAt DateTime @default(now())
 }

@@ -32,5 +32,13 @@ export const api = {
     deleteFromFavourites: async (movieId: string) => {
         const { data } = await axios.delete("/api/delete-favourite-movie/" + movieId);
         return data;
+    },
+    createReview: async ( rating: { title: string, rating: Number}) => {
+        const { data } = await axios.post("/api/create-review", rating);
+        return data;
+    },
+    getReviews: async (userId: string) => {
+        const { data } = await axios.get("/api/get-review/" + userId);
+        return data;
     }
 }

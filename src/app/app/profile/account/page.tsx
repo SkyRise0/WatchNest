@@ -1,6 +1,7 @@
 "use client"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import ListMovie from "@/app/components/ListMovie";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 import MovieCards from "@/app/components/MovieCards";
 import { api } from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -25,10 +26,18 @@ export default function Profile () {
         onSuccess: () => queryClient.invalidateQueries() 
     })
 
-    console.log(currentUser.data);
+    const reviews = useQuery({
+        queryKey: ["review"],
+        queryFn: () => api.getReviews(currentUser.data.id)
+    })
+
+    const ratingIsForMovie = (movieTitle: string) => { 
+        return reviews.data.find((spesificRating: any) => { return spesificRating.title === movieTitle})
+    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-800 to-gray-900">
+            {currentUser.isLoading ? <LoadingSpinner /> : null}
             <div className="w-full max-w-md p-6 bg-gray-200 rounded-lg shadow-lg mt-2">
                 {currentUser.isSuccess ? (
                     <div className="text-center">
@@ -49,7 +58,7 @@ export default function Profile () {
                     </div>
                 ) : null}
             </div>
-            {currentUser.isSuccess ? (
+            {currentUser.isSuccess && reviews.isSuccess ? (
 
                 <div className="flex flex-col items-start px-8 py-8 text-gray-300 w-full">
                 <h1 className="text-3xl font-bold mb-6">Your Movies</h1>
@@ -59,7 +68,7 @@ export default function Profile () {
                     {currentUser.data.favourites.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             {currentUser.data?.favourites.map((movie: any, index: number) => (
-                                <ListMovie movie={movie} key={index} onDelete={removeFavouriteMovie}/>
+                                <ListMovie movie={movie} key={index} onDelete={removeFavouriteMovie} rating={reviews.data} ratingIsForMovie={ratingIsForMovie(movie.title)}/>
                             ))}
                         </div>
                     ) : (
@@ -72,7 +81,7 @@ export default function Profile () {
                     {currentUser.data.watchlist.length > 0 ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             {currentUser.data.watchlist.map((movie: any, index: number) => (
-                                <ListMovie movie={movie} key={index} onDelete={removeWatchListMovie}/>
+                                <ListMovie movie={movie} key={index} onDelete={removeWatchListMovie} ratingIsForMovie={ratingIsForMovie(movie.title)}/>
                             ))}
                         </div>
                     ) : (

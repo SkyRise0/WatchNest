@@ -5,6 +5,9 @@ import { useParams } from "next/navigation";
 import { title } from "process";
 import { useState } from "react";
 import { CheckCircleIcon } from "@heroicons/react/16/solid";
+import { StarIcon } from "@heroicons/react/24/outline";
+import RatingStars from "@/app/components/RatingStars";
+import LoadingSpinner from "@/app/components/LoadingSpinner";
 
 export default function MoviePage () {
 
@@ -32,26 +35,54 @@ export default function MoviePage () {
       poster_path: movieDetails.data?.poster_path
     }
 
+    const [rating, setRating] = useState(false);
+    const [ratingSuccess, setRatingSuccess] = useState(false);
+
     return (
         <div>
+            {movieDetails.isLoading ? <LoadingSpinner /> : null}
             {movieDetails.isSuccess? (
-                <div className="bg-gray-900 text-white min-h-screen">
+                <main className="bg-gray-900 text-white min-h-screen">
                 <div className="relative">
                   <img src={`https://image.tmdb.org/t/p/w780${movieDetails.data.backdrop_path}`} alt={`${movieDetails.data.title} Poster`}
                     className="w-full h-[600px] object-cover object-center"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 flex items-end">
-                    <div className="p-6">
-                      <h1 className="text-4xl font-bold">{movieDetails.data.title}</h1>
+                  <section className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900 flex items-end">
+                    <div className="px-6">
+                      <div className="mr-6">
+                        <h1 className="text-4xl font-bold">{movieDetails.data.title}</h1>
+                        <h2 className="text-2xl font-bold text-yellow-400 flex items-center gap-2">
+                          <StarIcon className="h-8 w-8 text-yellow-400" />
+                          {movieDetails.data.vote_average.toFixed(1)} / 10
+                        </h2>
+                      </div>
+                      <div className="pt-2 mr-6 flex justify-center">
+                        <button onClick={() => {!rating ? setRating(true) : setRating(false)}} className="flex p-2 gap-2 text-yellow-600 rounded-xl hover:bg-yellow-700/50 items-center">
+                          <StarIcon className="w-6 h-6 text-transparent stroke-yellow-600" />
+                          <h2 className="text-lg">Rate it!</h2>
+                        </button>
+                      </div>
+                      {rating ? (
+                        <div className="mt-4 flex justify-start gap-2">
+                          <RatingStars movieTitle={movieDetails.data.title} ratingSuccess={ratingSuccess} setRatingSuccess={setRatingSuccess} />
+                        </div>
+                      ): null}
                     </div>
-                  </div>
+                  </section>
                 </div>
           
-                <div className="max-w-6xl mx-auto px-6 py-10">
-                  <div className="space-y-4">
+                <div className="max-w-6xl mx-auto px-6 py-6">
+                  <section className="space-y-4">
                     <h2 className="text-2xl font-bold">Overview</h2>
                     <p className="text-gray-300">{movieDetails.data.overview || "No overview available."}</p>
-                  </div>
+                  </section>
+
+                  {ratingSuccess && (
+                    <div className="mt-4 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center gap-2">
+                      <CheckCircleIcon className="w-6 h-6 animate-pulse" />
+                      <p className="text-lg">Your rating has been recorded! Thank you!</p>
+                    </div>
+                  )}
         
                   <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-1">
@@ -65,7 +96,7 @@ export default function MoviePage () {
                     </div>
           
                     <div className="md:col-span-2 space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
+                      <section className="grid grid-cols-2 gap-4">
                         <div>
                           <h3 className="text-lg font-semibold">Genres</h3>
                           <p className="text-gray-300">
@@ -100,9 +131,9 @@ export default function MoviePage () {
                             </div>
                           )}
                         </div>
-                      </div>
+                      </section>
           
-                      <div>
+                      <section>
                         <h3 className="text-lg font-semibold">Production Companies</h3>
                         <ul className="mt-4 space-y-4">
                           {movieDetails.data.production_companies.map((company: any) => (
@@ -120,11 +151,11 @@ export default function MoviePage () {
                             </li>
                           ))}
                         </ul>
-                      </div>
+                      </section>
                     </div>
                   </div>
                 </div>
-              </div>
+              </main>
             ): null}
         </div>
       );
