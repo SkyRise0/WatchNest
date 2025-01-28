@@ -3,6 +3,7 @@ import { api } from "@/lib/axios";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { useMutation } from "@tanstack/react-query";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 
 export default function RatingStars ({ movieTitle, ratingSuccess, setRatingSuccess }) {
@@ -12,7 +13,8 @@ export default function RatingStars ({ movieTitle, ratingSuccess, setRatingSucce
     const stars = Array.from({ length: 10 }, (_, index) => index + 1);
 
     const createReview = useMutation({
-        mutationFn: () => api.createReview({ title: movieTitle, rating: selectedStars})
+        mutationFn: () => api.createReview({ title: movieTitle, rating: selectedStars}),
+        onError: () => { return redirect("/app/profile/login")}
     })
 
     return (

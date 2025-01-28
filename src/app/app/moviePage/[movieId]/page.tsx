@@ -1,19 +1,28 @@
 "use client"
 import { api } from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { title } from "process";
 import { useState } from "react";
 import { CheckCircleIcon } from "@heroicons/react/16/solid";
 import { StarIcon } from "@heroicons/react/24/outline";
 import RatingStars from "@/app/components/RatingStars";
 import LoadingSpinner from "@/app/components/LoadingSpinner";
+import { useSession } from "next-auth/react";
 
 export default function MoviePage () {
 
     const params = useParams();
 
     const queryClient = useQueryClient();
+
+    const { data: session } = useSession();
+
+    const redirectToLogin = () => {
+      if (!session){
+        return redirect("/app/profile/login")
+      }
+    }
 
     const movieDetails = useQuery({
         queryKey: ["movie", params.movieId],
@@ -24,10 +33,15 @@ export default function MoviePage () {
       mutationFn: (movie: any) => api.addToWatchList({ title: movie.title, id: movie.id, poster_path: movie.poster_path}),
     });
 
+    
     const addToFavourites = useMutation({
       mutationFn: (movie: any) => api.addToFavourte({ title: movie.title, id: movie.id, poster_path: movie.poster_path}),
-      onSuccess: () => queryClient.invalidateQueries()
+      onSuccess: () => queryClient.invalidateQueries(),
     });
+
+    if (addToFavourites.isError || addToWatchList.isError) {
+      redirectToLogin()
+    };
 
     const movieDetailsAdd = {
       title: movieDetails.data?.title,
@@ -63,7 +77,7 @@ export default function MoviePage () {
                         </button>
                       </div>
                       {rating ? (
-                        <div className="mt-4 flex justify-start gap-2">
+                        <div className="mt-4 flex justify-start gap-2" onClick={redirectToLogin}>
                           <RatingStars movieTitle={movieDetails.data.title} ratingSuccess={ratingSuccess} setRatingSuccess={setRatingSuccess} />
                         </div>
                       ): null}
@@ -71,31 +85,33 @@ export default function MoviePage () {
                   </section>
                 </div>
           
-                <div className="max-w-6xl mx-auto px-6 py-6">
+                <div className="max-w-7xl mx-auto px-6 py-6">
                   <section className="space-y-4">
                     <h2 className="text-2xl font-bold">Overview</h2>
                     <p className="text-gray-300">{movieDetails.data.overview || "No overview available."}</p>
                   </section>
 
-                  {ratingSuccess && (
-                    <div className="mt-4 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center gap-2">
+                  {session && (
+                    <>
+                    {ratingSuccess && (
+                      <div className="mt-4 bg-green-500 text-white p-4 rounded-lg shadow-lg flex items-center gap-2">
                       <CheckCircleIcon className="w-6 h-6 animate-pulse" />
                       <p className="text-lg">Your rating has been recorded! Thank you!</p>
-                    </div>
+                      </div>
+                    )}
+                    </>
                   )}
         
-                  <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-1">
+                  <div className="w-full mt-10 grid grid-cols-3">
+                    <div >
                       <img
                         src={`https://image.tmdb.org/t/p/w500${movieDetails.data.poster_path}`}
                         alt={`${movieDetails.data.title} Poster`}
-                        width={500}
-                        height={750}
-                        className="rounded-lg shadow-lg"
+                        className="w-[350px] h-auto max-h-[500px] object-cover rounded-lg shadow-lg mx-auto"
                       />
                     </div>
           
-                    <div className="md:col-span-2 space-y-6">
+                    <div className="space-y-6 col-span-2">
                       <section className="grid grid-cols-2 gap-4">
                         <div>
                           <h3 className="text-lg font-semibold">Genres</h3>

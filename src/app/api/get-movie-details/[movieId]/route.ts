@@ -10,10 +10,6 @@ export async function GET (request: NextRequest, { params }: { params: { movieId
 
     const session = await getServerSession(authOptions);
 
-    if (!session) {
-      return NextResponse.json({message: "Unauthorized"}, {status: 401});
-    }
-
     const options = {
         method: 'GET',
         url: 'https://api.themoviedb.org/3/movie/' + movieId,
@@ -23,6 +19,11 @@ export async function GET (request: NextRequest, { params }: { params: { movieId
         Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMDE0M2JmZDE4MGJiYzI1ODlmNWI3YzEyMmJmOTMzZCIsIm5iZiI6MTczNzEzODA4OC41Mzc5OTk5LCJzdWIiOiI2NzhhOWZhOGRiZmU1MGFhM2QxZDJlNjUiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.efG6KJ2Cu1OjSf60x0NFkcTQagg15m6GunALCt4NYDw'
         }
     };
+
+    if (!session) {
+      const response = await axios.request(options);
+      return NextResponse.json(response.data, {status: 200})
+    }
 
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user?.email ?? ""},

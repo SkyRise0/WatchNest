@@ -5,11 +5,18 @@ import LoadingSpinner from "@/app/components/LoadingSpinner";
 import MovieCards from "@/app/components/MovieCards";
 import { api } from "@/lib/axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { redirect } from "next/navigation"
 
 export default function Profile () {
 
     const queryClient = useQueryClient();
+
+    const { data: session } = useSession();
+    
+    if (!session) {
+        return redirect ("/app/profile/login");
+    }
 
     const currentUser = useQuery({
         queryKey: ["user"],
@@ -38,21 +45,21 @@ export default function Profile () {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-gray-800 to-gray-900">
             {currentUser.isLoading ? <LoadingSpinner /> : null}
-            <div className="w-full max-w-md p-6 bg-gray-200 rounded-lg shadow-lg mt-2">
+            <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg mt-2">
                 {currentUser.isSuccess ? (
-                    <div className="text-center">
+                    <div className="text-center text-white">
                         <img src={currentUser.data?.image} alt="Profile Picture" 
                         className="w-24 h-24 mx-auto rounded-full shadow-md"/>
 
-                        <h1 className="mt-4 text-2xl font-bold text-gray-700">
+                        <h1 className="mt-4 text-3xl font-semibold text-gray-100">
                             {currentUser.data?.name}
                         </h1>
 
-                        <p className="mt-2 text-gray-500">
+                        <p className="mt-2 text-gray-400">
                             {currentUser.data?.email}
                         </p>
 
-                        <button onClick={() => signOut()} className="mt-6 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition">
+                        <button onClick={() => signOut()} className="mt-6 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
                             Sign Out
                         </button>
                     </div>
@@ -66,7 +73,7 @@ export default function Profile () {
                 <div className="mb-10">
                     <h2 className="text-2xl font-bold mb-4">Favorite Movies</h2>
                     {currentUser.data.favourites.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 gap-6">
                             {currentUser.data?.favourites.map((movie: any, index: number) => (
                                 <ListMovie movie={movie} key={index} onDelete={removeFavouriteMovie} rating={reviews.data} ratingIsForMovie={ratingIsForMovie(movie.title)}/>
                             ))}
@@ -79,7 +86,7 @@ export default function Profile () {
                 <div>
                     <h2 className="text-2xl font-bold mb-4">Watchlist Movies</h2>
                     {currentUser.data.watchlist.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-4 gap-6">
                             {currentUser.data.watchlist.map((movie: any, index: number) => (
                                 <ListMovie movie={movie} key={index} onDelete={removeWatchListMovie} ratingIsForMovie={ratingIsForMovie(movie.title)}/>
                             ))}

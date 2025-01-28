@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { NextResponse, NextRequest } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export async function POST(request: NextRequest) {
   try {

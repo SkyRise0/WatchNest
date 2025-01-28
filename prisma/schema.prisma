@@ -91,6 +91,5 @@ model Review {
   userId    String
   title     String
   rating    Int      
-  comment   String?
   createdAt DateTime @default(now())
 }
